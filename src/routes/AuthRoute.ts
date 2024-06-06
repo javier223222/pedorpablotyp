@@ -1,5 +1,5 @@
 import bodyParser from "body-parser"
-import express,{Request,Response} from "express"
+import express,{Request,Response,Router} from "express"
 import UserController from "../controllers/UserController"
 import { getDecodedToken, getToekndata, verifyToken } from "../middlewares"
 import jwt from "jsonwebtoken"
@@ -8,29 +8,29 @@ dotenv.config()
 
 
 let jsonParser = bodyParser.json()
-let authuser=express.Router()
+let authuser:Router=express.Router()
 
-authuser.post("/signup",jsonParser,async (req:Request,res:Response)=>{
+authuser.post("/signup",jsonParser,async (req:Request,res:Response):Promise<Response>=>{
     try{
         const userController=new UserController()
         const result=await userController.create(req.body.email,req.body.password,req.body.name,req.body.username)
-        res.json(result)
+       return res.json(result)
     }catch(e:any){
-        res.status(500).json({message:e.message})
+       return res.status(500).json({message:e.message})
     }
 })
 
-authuser.post("/login",jsonParser,async (req:Request,res:Response)=>{
+authuser.post("/login",jsonParser,async (req:Request,res:Response):Promise<Response>=>{
     try{
         const userController=new UserController()
         const result=await userController.login(req.body.email,req.body.password)
-        res.status(200).json({token:result})
+       return res.status(200).json({token:result})
     }catch(e:any){
-        res.status(500).json({message:"Login Failed"})
+       return res.status(500).json({message:"Login Failed"})
     }
 })
 
-authuser.patch("/",jsonParser,verifyToken,async (req:Request,res:Response)=>{
+authuser.patch("/",jsonParser,verifyToken,async (req:Request,res:Response):Promise<Response>=>{
     try{
         const userController=new UserController()
         const token=req.header("x-access-token")||"s"
@@ -41,23 +41,26 @@ authuser.patch("/",jsonParser,verifyToken,async (req:Request,res:Response)=>{
         
         
     }catch(e:any){
-        res.status(500).json({message:e.message})
+       return res.status(500).json({message:e.message})
     }
 })
 
-authuser.get("/",verifyToken,async (req:Request,res:Response)=>{
+authuser.get("/",verifyToken,async (req:Request,res:Response):Promise<Response>=>{
     try{
         const userController=new UserController()
         const token=req.header("x-access-token")||"s"
         let decodedData=await getToekndata(token)
         const result=await userController.get(decodedData.id)
-        res.json({
+      return  res.json({
             name:result
         })
     }catch(e:any){
-        res.status(500).json({message:e.message})
+       return res.status(500).json({message:e.message})
     }
 })
+
+
+
 
 
 

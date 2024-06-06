@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 dotenv.config();
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = async(req: Request, res: Response, next: NextFunction):Promise<any|Response> => {
     try {
         const token =  req.header("x-access-token")||"s";
         if (!token) {
@@ -13,11 +13,11 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
         
         next();
     } catch (e: any) {
-        res.status(401).json({ message: "nno autorizado" });
+       return res.status(401).json({ message: "nno autorizado" });
     }
 }
 
-export const getDecodedToken = (token:string):any => {
+export const getDecodedToken =async (token:string):Promise<any> => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string,(err,decoded)=>{
             if(err){
